@@ -2,7 +2,7 @@
 	webserver/http.lua
 ]]
 
-webserver.HTTP = {}
+webserver.HTTP = webserver.HTTP or {}
 local HTTP = webserver.HTTP;
 
 function HTTP.HandleRequest( socket, sPacketContents )
@@ -80,18 +80,16 @@ function HTTP.HandleResponse( socket, request, headers )
 		include( "webserver/www-private/404.lua" );
 	end
 
-	HTTP.WriteHeader( "Content-Length: " .. HTTP.ResponsePacket:OutSize() )
+	HTTP.WriteHeader( "Content-Length: " .. HTTP.ResponsePacket:OutPos() )
 	HTTP.HeaderPacket:WriteLine( "" )
 	
-	print( HTTP.HeaderPacket:OutSize() )
-	print( HTTP.ResponsePacket:OutSize() )
+	local p = BromPacket()
+	p:WritePacket(HTTP.HeaderPacket)
+	p:WritePacket(HTTP.ResponsePacket)
+	print(socket)
+	print("outp: ", p:OutPos())
 	
-	
-	print( HTTP.HeaderPacket:Copy():InSize() )
-	
-	socket:Send(HTTP.HeaderPacket, true)
-	socket:Send(HTTP.ResponsePacket, true)
-	socket:Disconnect()
+	socket:Send(p, true)
 end
 
 function HTTP.WriteHeader( Header )

@@ -4,7 +4,7 @@
 
 require( "bromsock");
 
-webserver.server = {};
+webserver.server = webserver.server or {};
 local server = webserver.server;
 
 function server.New( )
@@ -24,23 +24,20 @@ function server.New( )
 end
 
 function server.Accept( serversock, clientsock )
-	clientsock:SetCallbackReceive( server.Receive )
-	clientsock:SetCallbackSend( function() print("we sent something") end )
-	clientsock:SetCallbackDisconnect( server.Disconnect )
+	serversock:Accept()
+	
+	clientsock:SetCallbackReceive( function(s, p)
+		webserver.HTTP.HandleRequest( clientsock, p:ReadStringAll() )
+	end	)
+	
+	clientsock:SetCallbackSend(function()
+		print("we sent something")
+		clientsock:Close()
+	end)
 	
 	clientsock:SetTimeout(5000) -- timeout send/recv commands in 1 second. This will generate a Disconnect event if you're using callbacks
 	
 	clientsock:ReceiveUntil("\r\n\r\n")
-	serversock:SetCallbackSend( function() print("we sent something") end )
-	serversock:Accept()
-end
-
-function server.Receive( sock, packet )
-	webserver.HTTP.HandleRequest( sock, packet:ReadStringAll() )
-end
-
-function server.Disconnect( sock )
-	sock:Accept()
 end
 
 function server.IP() return server.server:GetIP() end
