@@ -2,7 +2,7 @@
 	webserver/http.lua
 ]]
 
-webserver.HTTP = webserver.HTTP or {}
+webserver.HTTP = webserver.HTTP or {};
 local HTTP = webserver.HTTP;
 
 function HTTP.HandleRequest( socket, sPacketContents )
@@ -16,7 +16,7 @@ function HTTP.HandleRequest( socket, sPacketContents )
 	local request = HTTP.HandleRequestLine( request_line );
 	local headers = HTTP.ManageHeaders( HTTP.HandleRequestHeaders( header ) );
 	
-	HTTP.HandleResponse( socket, request, headers )
+	HTTP.HandleResponse( socket, request, headers );
 	
 end
 
@@ -47,10 +47,10 @@ end
 
 function HTTP.ManageHeaders( tHeaders )
 
-	local r_tHeaders = {}
+	local r_tHeaders = {};
 
 	for header, value in pairs( tHeaders ) do
-		local x = string.Explode( ",", value )
+		local x = string.Explode( ",", value );
 		r_tHeaders[ header ] = x;
 		
 		for k,v in pairs( r_tHeaders[ header ] ) do
@@ -59,19 +59,20 @@ function HTTP.ManageHeaders( tHeaders )
 				r_tHeaders[ header ][ k ] = { value = value, q = tonumber(q) }
 			end
 		end
-		if (#r_tHeaders[ header ] == 1) then r_tHeaders[ header ] = value end
+		if (#r_tHeaders[ header ] == 1) then r_tHeaders[ header ] = value; end
 	end
 	
-	return r_tHeaders
+	return r_tHeaders;
 
 end
 
 function HTTP.HandleResponse( socket, request, headers )
 
+	HTTP.Headers = {}
 	HTTP.HeaderPacket = BromPacket();
 	HTTP.ResponsePacket = BromPacket();
 	
-	if( string.EndsWith( request, "/" ) ) then request = request .. "index.lua" end
+	if( string.EndsWith( request, "/" ) ) then request = request .. "index.lua"; end
 	
 	if ( /*file.Exists( "webserver/www"..request, "LUA" )*/ false ) then
 		
@@ -80,24 +81,35 @@ function HTTP.HandleResponse( socket, request, headers )
 		include( "webserver/www-private/404.lua" );
 	end
 
-	HTTP.WriteHeader( "Content-Length: " .. HTTP.ResponsePacket:OutPos() )
-	HTTP.HeaderPacket:WriteLine( "" )
+	HTTP.BuildHeaders();
 	
-	local p = BromPacket()
-	p:WritePacket(HTTP.HeaderPacket)
-	p:WritePacket(HTTP.ResponsePacket)
-	print(socket)
-	print("outp: ", p:OutPos())
+	local p = BromPacket();
+	p:WritePacket(HTTP.HeaderPacket);
+	p:WritePacket(HTTP.ResponsePacket);
+	print(socket);
+	print("outp: ", p:OutPos());
 	
-	socket:Send(p, true)
+	socket:Send(p, true);
 end
 
-function HTTP.WriteHeader( Header )
-	HTTP.HeaderPacket:WriteLine( Header )
+function HTTP.BuildHeaders()
+
+	HTTP.WriteHeader( "Content-Length" , HTTP.ResponsePacket:OutPos() );
+
+	for header, value in pairs( HTTP.Headers ) do
+		HTTP.HeaderPacket:WriteLine( header .. ": " .. value );
+	end
+	
+	HTTP.HeaderPacket:WriteLine( "" );
+	
+end
+
+function HTTP.WriteHeader( Header, value )
+	HTTP.Headers[ Header ] = value;
 end
 
 function HTTP.Write( ... )
 	for k,v in pairs( {...} ) do
-		HTTP.ResponsePacket:WriteStringRaw( v )
+		HTTP.ResponsePacket:WriteStringRaw( v );
 	end
 end

@@ -2,9 +2,9 @@
 	404.lua
 ]]
 
-webserver.HTTP.WriteHeader( "HTTP/1.1 404 Not Found" );
-webserver.HTTP.WriteHeader( "Content-Type: text/html" );
-webserver.HTTP.WriteHeader( "server: JWebServer 1.00/" .. jit.os );
+webserver.HTTP.HeaderPacket:WriteStringRaw( "HTTP/1.1 404 Not Found" );
+webserver.HTTP.WriteHeader( "Content-Type", "text/html" );
+webserver.HTTP.WriteHeader( "server", "JWebServer 1.00/" .. jit.os );
 
 webserver.HTTP.Write( [[
 <?xml version="1.0" encoding="UTF-8"?>
@@ -41,7 +41,7 @@ webserver.HTTP.Write( [[
 <address>
   <span>]])
   
-webserver.HTTP.Write( "JWebServer 1.00/" .. jit.os .. [[</span>
+webserver.HTTP.Write( "JWebServer 1.00/" .. jit.os .. [[/Lua ]] .. " on port " .. webserver.server.Port() .. [[</span>
 </address>
 </body>
 </html>]] );
