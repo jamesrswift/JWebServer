@@ -1,0 +1,10 @@
+"AddonInfo"
+{
+    "name"              "JLoadingScreen"
+    "version"           "Current Version"
+    "up_date"           "Date of update"
+    "author_name"       "Addon's Author"
+    "author_email"      ""
+    "info"              "Addon's Info"
+    "override"          "0"
+}
