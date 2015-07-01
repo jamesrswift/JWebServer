@@ -2,9 +2,8 @@
 	404.lua
 ]]
 
-webserver.HTTP.HeaderPacket:WriteStringRaw( "HTTP/1.1 404 Not Found" );
+webserver.HTTP.SetReturnCode( "404 Not Found" );
 webserver.HTTP.WriteHeader( "Content-Type", "text/html" );
-webserver.HTTP.WriteHeader( "server", "JWebServer 1.00/" .. jit.os );
 
 webserver.HTTP.Write( [[
 <?xml version="1.0" encoding="UTF-8"?>

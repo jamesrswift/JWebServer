@@ -68,11 +68,16 @@ end
 
 function HTTP.HandleResponse( socket, request, headers )
 
+	HTTP.ReturnCode = "200 OK"
 	HTTP.Headers = {}
 	HTTP.HeaderPacket = BromPacket();
 	HTTP.ResponsePacket = BromPacket();
 	
-	if( string.EndsWith( request, "/" ) ) then request = request .. "index.lua"; end
+	local URI = HTTP.ManageGetVariables( request );
+	if( string.EndsWith( URI, "/" ) ) then URI = URI .. "index.lua"; end
+	
+	print( URI )
+	PrintTable( HTTP.GET )
 	
 	if ( /*file.Exists( "webserver/www"..request, "LUA" )*/ false ) then
 		
@@ -82,25 +87,22 @@ function HTTP.HandleResponse( socket, request, headers )
 	end
 
 	HTTP.BuildHeaders();
-	
-	local p = BromPacket();
-	p:WritePacket(HTTP.HeaderPacket);
-	p:WritePacket(HTTP.ResponsePacket);
-	print(socket);
-	print("outp: ", p:OutPos());
-	
-	socket:Send(p, true);
+	HTTP.Respond( socket )
 end
 
 function HTTP.BuildHeaders()
 
-	HTTP.WriteHeader( "Content-Length" , HTTP.ResponsePacket:OutPos() );
+	HTTP.HeaderPacket:WriteLine( "HTTP/1.1 " .. HTTP.ReturnCode );
 
 	for header, value in pairs( HTTP.Headers ) do
 		HTTP.HeaderPacket:WriteLine( header .. ": " .. value );
 	end
 	
+	HTTP.WriteHeader( "server", "JWebServer 1.00/" .. jit.os );
+	HTTP.WriteHeader( "Content-Length" , HTTP.ResponsePacket:OutPos() );
 	HTTP.HeaderPacket:WriteLine( "" );
+	
+	PrintTable( HTTP.Headers )
 	
 end
 
@@ -112,4 +114,36 @@ function HTTP.Write( ... )
 	for k,v in pairs( {...} ) do
 		HTTP.ResponsePacket:WriteStringRaw( v );
 	end
+end
+
+function HTTP.SetReturnCode( Code ) HTTP.ReturnCode = Code end
+
+function HTTP.ManageGetVariables( URI )
+
+	HTTP.GET = {}
+	local x = string.Explode( "?", URI )
+	if ( x[2] ) then
+		for k,v in pairs( string.Explode( "&", x[2] ) ) do
+			local y = string.Explode( "=", v )
+			for y1_safe in string.gmatch( y[1], "%%(%x%x)" ) do
+				y[1] = string.gsub( y[1], "%%" .. y1_safe, string.char( y1_safe ) );
+			end
+			
+			for y2_safe in string.gmatch( y[1], "%%(%x%x)" ) do
+				y[2] = string.gsub( y[2] or "", "%%" .. y2_safe, string.char( y2_safe ) );
+			end
+			HTTP.GET[ y[1] ] = y[2];
+		end
+	end
+	
+	return x[1]
+	
+end
+
+function HTTP.Respond( socket )
+	local p = BromPacket();
+	p:WritePacket(HTTP.HeaderPacket);
+	p:WritePacket(HTTP.ResponsePacket);
+	
+	socket:Send(p, true);
 end

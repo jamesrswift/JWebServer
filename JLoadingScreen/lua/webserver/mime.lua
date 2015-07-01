@@ -8,17 +8,21 @@ local MIME = {};
 MIME.Types = {};
 
 function MIME.AddType( Extensions, ContentType )
-	table.insert( MIME.Types, {Extensions = Extensions, ContentType = ContentType} );
+	if ( type(Extensions) == "string" ) then
+		MIME.Types[Extensions] = ContentType;
+	else
+		for k,v in pairs( Extensions ) do
+			MIME.Types[v] = ContentType;
+		end
+	end
 end
 
 function MIME.SelectType( URI )
 
-	local extension = string.match( string.lower(URI), ".(%a+)$" );
+	local extension = string.match( string.lower(URI), "%.(%a+)$" );
 
-	for k, mime in pairs( MIME.Types ) do
-		if table.HasValue( v.Extensions, extension ) then
-			return v.ContentType
-		end
+	if ( MIME.Types[extension] ) then
+		return MIME.Types[extension];
 	end
 	
 	return "application/octet-stream";
@@ -26,6 +30,6 @@ end
 
 -- Default Types
 
-MIME.AddType( {"lua"}, "text/html" );
+MIME.AddType( "lua", "text/html" );
 MIME.AddType( {"htm", "html"}, "text/html" );
-MIME.AddType( {"css"}, "text/css" );
+MIME.AddType( "css", "text/css" );
