@@ -76,9 +76,6 @@ function HTTP.HandleResponse( socket, request, headers )
 	local URI = HTTP.ManageGetVariables( request );
 	if( string.EndsWith( URI, "/" ) ) then URI = URI .. "index.lua"; end
 	
-	print( URI )
-	PrintTable( HTTP.GET )
-	
 	if ( /*file.Exists( "webserver/www"..request, "LUA" )*/ false ) then
 		
 		
@@ -98,11 +95,10 @@ function HTTP.BuildHeaders()
 		HTTP.HeaderPacket:WriteLine( header .. ": " .. value );
 	end
 	
-	HTTP.WriteHeader( "server", "JWebServer 1.00/" .. jit.os );
-	HTTP.WriteHeader( "Content-Length" , HTTP.ResponsePacket:OutPos() );
+	HTTP.HeaderPacket:WriteLine( "server: JWebServer 1.00/" .. jit.os );
+	HTTP.HeaderPacket:WriteLine( "Content-Length: " .. HTTP.ResponsePacket:OutPos() );
+	HTTP.HeaderPacket:WriteLine( "Connection: close");
 	HTTP.HeaderPacket:WriteLine( "" );
-	
-	PrintTable( HTTP.Headers )
 	
 end
 
@@ -111,7 +107,7 @@ function HTTP.WriteHeader( Header, value )
 end
 
 function HTTP.Write( ... )
-	for k,v in pairs( {...} ) do
+	for k,v in ipairs( {...} ) do
 		HTTP.ResponsePacket:WriteStringRaw( v );
 	end
 end
@@ -126,11 +122,11 @@ function HTTP.ManageGetVariables( URI )
 		for k,v in pairs( string.Explode( "&", x[2] ) ) do
 			local y = string.Explode( "=", v )
 			for y1_safe in string.gmatch( y[1], "%%(%x%x)" ) do
-				y[1] = string.gsub( y[1], "%%" .. y1_safe, string.char( y1_safe ) );
+				y[1] = string.gsub( y[1], "%%" .. y1_safe, string.char( tonumber(y1_safe,16) ) );
 			end
 			
-			for y2_safe in string.gmatch( y[1], "%%(%x%x)" ) do
-				y[2] = string.gsub( y[2] or "", "%%" .. y2_safe, string.char( y2_safe ) );
+			for y2_safe in string.gmatch( y[2], "%%(%x%x)" ) do
+				y[2] = string.gsub( y[2] or "", "%%" .. y2_safe, string.char( tonumber(y2_safe,16) ) );
 			end
 			HTTP.GET[ y[1] ] = y[2];
 		end
