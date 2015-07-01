@@ -33,3 +33,5 @@ end
 MIME.AddType( "lua", "text/html" );
 MIME.AddType( {"htm", "html"}, "text/html" );
 MIME.AddType( "css", "text/css" );
+MIME.AddType( "ico", "image/icon" );
+MIME.AddType( "svg", "image/svg+xml" );
