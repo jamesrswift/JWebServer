@@ -1,5 +1,5 @@
 --[[
-	404.lua
+	www/index.lua
 ]]
 
 webserver.HTTP.Write( [[
@@ -8,7 +8,7 @@ webserver.HTTP.Write( [[
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<title>Object not found!</title>
+<title>OMG IT WORKS</title>
 <style type="text/css">
     body { color: #000000; background-color: #FFFFFF; }
     a:link { color: #0000CC; }
@@ -18,22 +18,16 @@ webserver.HTTP.Write( [[
 </head>
 
 <body>
-<h1>Object not found!</h1>
+<h1>OMG IT WORKS</h1>
 <p>
 
 
-    The requested URL was not found on this server.
-
-  
-
-    If you entered the URL manually please check your
-    spelling and try again.
-
+    Do I get a cookie?
   
 
 </p>
 
-<h2>Error 404</h2>
+<h2>200 OK</h2>
 <address>
   <span>]])
   

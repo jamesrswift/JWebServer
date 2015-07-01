@@ -3,7 +3,7 @@
 ]]
 
 webserver.MIME = webserver.MIME or {};
-local MIME = {};
+local MIME = webserver.MIME;
 
 MIME.Types = {};
 
@@ -22,10 +22,10 @@ function MIME.SelectType( URI )
 	local extension = string.match( string.lower(URI), "%.(%a+)$" );
 
 	if ( MIME.Types[extension] ) then
-		return MIME.Types[extension];
+		return extension, MIME.Types[extension];
 	end
 	
-	return "application/octet-stream";
+	return extension, "application/octet-stream";
 end
 
 -- Default Types

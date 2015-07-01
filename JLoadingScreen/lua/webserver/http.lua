@@ -74,17 +74,11 @@ function HTTP.HandleResponse( socket, request, headers )
 	HTTP.ResponsePacket = BromPacket();
 	
 	local URI = HTTP.ManageGetVariables( request );
-	if( string.EndsWith( URI, "/" ) ) then URI = URI .. "index.lua"; end
+	webserver.filesystem.HandleRequest( URI )
 	
-	if ( /*file.Exists( "webserver/www"..request, "LUA" )*/ false ) then
-		
-		
-	else
-		include( "webserver/www-private/404.lua" );
-	end
-
 	HTTP.BuildHeaders();
 	HTTP.Respond( socket )
+
 end
 
 function HTTP.BuildHeaders()
